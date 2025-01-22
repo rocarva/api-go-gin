@@ -1,0 +1,29 @@
+# Diretório de dependências do Go
+/go.sum
+/go.mod
+
+# Binários gerados
+/bin/
+/build/
+/*.exe
+/*.dll
+/*.so
+/*.dylib
+/*.test
+
+# Diretórios de cache e temporários
+/.idea/
+/.vscode/
+/*.log
+*.out
+*.tmp
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos específicos do GORM
+alunos.db
+
+# Configurações pessoais
+.env
