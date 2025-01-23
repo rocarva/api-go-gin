@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"api-go-gin/models"
 	"api-go-gin/database"
-	"github.com/gin-gonic/gin"
+	"api-go-gin/models"
 	"net/http"
-	
+
+	"github.com/gin-gonic/gin"
 )
 
 func ExibeTodosAlunos(c *gin.Context) {
@@ -22,32 +22,33 @@ func Saudacao(c *gin.Context) {
 	})
 }
 
-
 func CriaNovoALuno(c *gin.Context) {
 	var aluno models.Aluno
 	if err := c.ShouldBindJSON(&aluno); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Erro ao processar o JSON",
-			
 		})
-		return 
+		return
 	}
-	// Incrementa o ID e adiciona o aluno ao banco de dados simulado
+	if err := models.ValidaDadosDeAluno(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	database.DB.Create(&aluno)
-	
-	// Retorna o aluno criado 
-	c.JSON(http.StatusCreated,gin.H{
+	// Retorna o aluno criado
+	c.JSON(http.StatusCreated, gin.H{
 		"message": "Aluno criado com sucesso",
-		"aluno": aluno,
+		"aluno":   aluno,
 	})
 
 }
 
-
-func BuscarAlunoPorID(c *gin.Context){
+func BuscarAlunoPorID(c *gin.Context) {
 	var aluno models.Aluno
 	id := c.Params.ByName("id")
-	database.DB.First(&aluno, id)	
+	database.DB.First(&aluno, id)
 	if aluno.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Not found": "Aluno não encontrado",
@@ -57,7 +58,7 @@ func BuscarAlunoPorID(c *gin.Context){
 	c.JSON(http.StatusOK, aluno)
 }
 
-func DeletaAluno(c *gin.Context){
+func DeletaAluno(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var aluno models.Aluno
 	database.DB.Delete(&aluno, id)
@@ -66,8 +67,7 @@ func DeletaAluno(c *gin.Context){
 	})
 }
 
-
-func EditaAluno(c *gin.Context){
+func EditaAluno(c *gin.Context) {
 	var aluno models.Aluno
 	id := c.Params.ByName("id")
 	database.DB.First(&aluno, id)
@@ -77,19 +77,26 @@ func EditaAluno(c *gin.Context){
 		})
 		return
 	}
+
+	if err := models.ValidaDadosDeAluno(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	database.DB.Model(&aluno).UpdateColumns(aluno)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Aluno alterado com sucesso",
-		"aluno": aluno,
+		"aluno":   aluno,
 	})
 }
 
-func BuscaAlunoPorCPF(c *gin.Context){
+func BuscaAlunoPorCPF(c *gin.Context) {
 	var aluno models.Aluno
 	cpf := c.Params.ByName("cpf")
 	database.DB.Where(&models.Aluno{CPF: cpf}).First(&aluno)
 	if aluno.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{			
+		c.JSON(http.StatusNotFound, gin.H{
 			"Not found": "Aluno não encontrado",
 		})
 		return

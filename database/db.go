@@ -1,30 +1,31 @@
 package database
 
 import (
-    "log"
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
-    "api-go-gin/models"
+	"api-go-gin/models"
+	"log"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
 func ConectaComBancoDeDados() {
-    // String de conexão ao banco de dados
-    dsn := "host=localhost user=root password=root dbname=root port=5432 sslmode=disable"
-    var err error
+	// Caminho do arquivo SQLite
+	dsn := "alunos.db" // O banco de dados será salvo no arquivo alunos.db
+	var err error
 
-    // Conectando ao banco de dados
-    DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-    if err != nil {
-        log.Panic("Erro ao conectar com o banco de dados:", err)
-    }
+	// Conexão com o banco de dados SQLite
+	DB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Panic("Erro ao conectar com o banco de dados SQLite:", err)
+	}
 
-    // Criar tabelas automaticamente com base nos modelos
-    err = DB.AutoMigrate(&models.Aluno{})
-    if err != nil {
-        log.Panic("Erro ao migrar o banco de dados:", err)
-    }
+	// Migração automática dos modelos
+	err = DB.AutoMigrate(&models.Aluno{})
+	if err != nil {
+		log.Panic("Erro ao migrar o banco de dados:", err)
+	}
 
-    log.Println("Banco de dados conectado e tabelas criadas/migradas com sucesso!")
+	log.Println("Banco de dados SQLite conectado e tabelas criadas/migradas com sucesso!")
 }
